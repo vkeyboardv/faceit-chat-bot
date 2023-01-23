@@ -1,11 +1,11 @@
 {
-  "settings": {
+  "cron": {
     "timezone": "Europe/Kiev",
-    "cronHours": "19",
-    "cronMinutes": "20"
+    "pattern": "* * * * *"
   },
   "tg": {
     "botToken": "",
-    "chatId": -1001775456224
+    "chatId": "",
+    "getUpdates": "https://api.telegram.org/bot*****/getUpdates"
   }
 }
