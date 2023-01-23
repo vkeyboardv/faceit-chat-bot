@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "timezone": "Europe/Kiev",
+    "cronHours": "19",
+    "cronMinutes": "20"
+  },
+  "tg": {
+    "botToken": "",
+    "chatId": -1001775456224
+  }
+}
