@@ -30,8 +30,11 @@ const start = async () => {
       },
     } = data;
 
-    await telegram.setChatAdministratorCustomTitle(account.telegramUserId, `${faceit_elo} ELO [${skill_level}]`);
-    console.log(`[${new Date().toISOString()}]: Updated`, { faceit_elo, skill_level, url });
+    const status = await telegram.setChatAdministratorCustomTitle(
+      account.telegramUserId,
+      `${faceit_elo} ELO [${skill_level}]`,
+    );
+    console.log(`[${new Date().toISOString()}]: Updated`, { faceit_elo, skill_level, url, status });
   };
 
   const promises = accounts.map(account => fn(account));
