@@ -1,22 +1,25 @@
 const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs-extra');
+const path = require('path');
+
+const chatsPath = path.join(__dirname, './../chats.json');
 
 class Telegram {
-  constructor(botToken, chatId) {
+  constructor(botToken) {
     this.botToken = botToken;
-    this.chatId = chatId;
 
     this.instance = new TelegramBot(this.botToken, { polling: true });
 
     // Matches "/ping"
     this.instance.onText(/^(\/ping)$/, (msg, _match) => {
-      const chatId = msg.chat.id;
+      console.log('ping', { from: msg.from.id });
 
-      console.log('ping', { from });
+      const chatId = msg.chat.id;
+      const chatType = msg.chat.type;
 
       const html = `pong`;
 
-      if (chatId === this.chatId) {
+      if (chatType === 'supergroup') {
         this.instance.sendMessage(chatId, html, {
           parse_mode: 'HTML',
         });
@@ -24,36 +27,51 @@ class Telegram {
     });
 
     // Matches "/promote <faceitName>"
-    this.instance.onText(/\/promote (.+)/, async (msg, match) => {
+    this.instance.onText(/^\/promote (.+)$/, async (msg, match) => {
+      console.log('promote', { from: msg.from.id });
+
+      const chatType = msg.chat.type;
       const chatId = msg.chat.id;
 
       const telegramUserId = msg.from.id;
       const faceitName = match[1];
 
-      if (chatId === this.chatId) {
-        const accountsJson = await fs.readJson('./accounts.json');
+      if (chatType === 'supergroup') {
+        const chatsJson = await fs.readJson(chatsPath);
 
-        const index = accountsJson.findIndex(account => {
-          return Number(account.telegramUserId) === Number(telegramUserId);
+        const chatIndex = chatsJson.findIndex((chat) => {
+          return Number(chat.chatId) === Number(chatId);
         });
 
-        if (index === -1) {
-          accountsJson.push({ telegramUserId, faceitName });
+        if (chatIndex === -1) {
+          chatsJson.push({ chatId, accounts: [{ telegramUserId, faceitName }] });
         } else {
-          accountsJson[index].faceitName = faceitName;
+          const accounts = chatsJson[chatIndex].accounts;
+
+          const accountIndex = accounts.findIndex((account) => {
+            return Number(account.telegramUserId) === Number(telegramUserId);
+          });
+
+          if (accountIndex === -1) {
+            chatsJson[chatIndex].accounts.push({ telegramUserId, faceitName });
+          } else {
+            chatsJson[chatIndex].accounts[accountIndex].faceitName = faceitName;
+          }
         }
 
-        await fs.writeJson('./accounts.json', accountsJson);
+        await fs.writeJson(chatsPath, chatsJson);
 
-        const admins = await this.getChatAdministrators();
+        const admins = await this.getChatAdministrators(chatId);
 
-        const adminIndex = admins.findIndex(admin => {
+        const adminIndex = admins.findIndex((admin) => {
           return Number(admin.user.id) === Number(telegramUserId);
         });
 
         if (adminIndex === -1) {
           await this.promoteChatMember(chatId, telegramUserId, { can_manage_chat: true });
         }
+
+        const html = `done`;
 
         this.instance.sendMessage(chatId, html, {
           parse_mode: 'HTML',
@@ -62,24 +80,24 @@ class Telegram {
     });
   }
 
-  send(msg) {
-    return this.instance.sendMessage(this.chatId, msg, { parse_mode: 'HTML' });
+  send(chatId, msg) {
+    return this.instance.sendMessage(chatId, msg, { parse_mode: 'HTML' });
   }
 
-  sendSilent(msg) {
-    return this.instance.sendMessage(this.chatId, msg, { parse_mode: 'HTML', disable_notification: true });
+  sendSilent(chatId, msg) {
+    return this.instance.sendMessage(chatId, msg, { parse_mode: 'HTML', disable_notification: true });
   }
 
-  setChatAdministratorCustomTitle(userId, title) {
-    return this.instance.setChatAdministratorCustomTitle(this.chatId, userId, title);
+  setChatAdministratorCustomTitle(chatId, userId, title) {
+    return this.instance.setChatAdministratorCustomTitle(chatId, userId, title);
   }
 
-  promoteChatMember(userId, options) {
-    return this.instance.promoteChatMember(this.chatId, userId, options);
+  promoteChatMember(chatId, userId, options) {
+    return this.instance.promoteChatMember(chatId, userId, options);
   }
 
-  getChatAdministrators() {
-    return this.instance.getChatAdministrators(this.chatId);
+  getChatAdministrators(chatId) {
+    return this.instance.getChatAdministrators(chatId);
   }
 }
 

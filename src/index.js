@@ -2,44 +2,78 @@ const nconf = require('nconf');
 
 nconf.env().argv().file('config.json');
 
+const path = require('path');
+const fs = require('fs-extra');
 const axios = require('axios');
 const Telegram = require('./lib/telegram');
 
-const accounts = require('./accounts.json');
+const chatsPath = path.join(__dirname, './chats.json');
 
 const CronJob = require('cron').CronJob;
 
-const { botToken, chatId } = nconf.get('tg');
+const { botToken } = nconf.get('tg');
 const { timezone, pattern } = nconf.get('cron');
 
-const telegram = new Telegram(botToken, chatId);
+const telegram = new Telegram(botToken);
 
 const start = async () => {
   console.log(`[${new Date().toISOString()}]: Start`);
 
-  const fn = async account => {
-    const url = `https://api.faceit.com/users/v1/nicknames/${account.faceitName}`;
+  const fn = async (chat) => {
+    const { chatId, accounts } = chat;
+    console.log(`[${new Date().toISOString()}]: Calling for chat`, { chatId });
 
-    const { data } = await axios.get(url);
+    const promises = accounts.map(async (account) => {
+      try {
+        const url = `https://api.faceit.com/users/v1/nicknames/${account.faceitName}`;
 
-    const {
-      payload: {
-        games: {
-          csgo: { faceit_elo, skill_level },
-        },
-      },
-    } = data;
+        try {
+          const { data } = await axios.get(url);
 
-    const status = await telegram.setChatAdministratorCustomTitle(
-      account.telegramUserId,
-      `${faceit_elo} ELO [${skill_level}]`,
-    );
-    console.log(`[${new Date().toISOString()}]: Updated`, { faceit_elo, skill_level, url, status });
+          const {
+            payload: {
+              games: {
+                csgo: { faceit_elo, skill_level },
+              },
+            },
+          } = data;
+
+          await telegram.setChatAdministratorCustomTitle(
+            chatId,
+            account.telegramUserId,
+            `${faceit_elo} ELO [${skill_level}]`,
+          );
+          console.log(
+            `[${new Date().toISOString()}]: ${chatId}|${
+              account.faceitName
+            } - Updated elo ${faceit_elo}, lvl ${skill_level}`,
+          );
+        } catch (err) {
+          await telegram.setChatAdministratorCustomTitle(chatId, account.telegramUserId, `error`);
+
+          console.log(`[${new Date().toISOString()}]: ${chatId}|${account.faceitName} - Updated error`);
+        }
+      } catch (err) {
+        console.log(err.message);
+
+        throw err;
+      }
+    });
+
+    try {
+      await Promise.all(promises);
+    } catch (err) {
+      console.log(err.message);
+
+      throw err;
+    }
   };
 
-  const promises = accounts.map(account => fn(account));
-
   try {
+    const chatsJson = await fs.readJson(chatsPath);
+
+    const promises = chatsJson.map((chat) => fn(chat));
+
     await Promise.all(promises);
   } catch (err) {
     `[${new Date().toISOString()}]: Error`, { message: err.message };

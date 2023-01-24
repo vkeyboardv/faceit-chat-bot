@@ -4,13 +4,16 @@ nconf.env().argv().file('config.json');
 
 const Telegram = require('./lib/telegram');
 
-const { botToken, chatId } = nconf.get('tg');
+const { botToken } = nconf.get('tg');
 
-const telegram = new Telegram(botToken, chatId);
+const telegram = new Telegram(botToken);
+
+const chatId = -1001887440131;
+const telegramUserId = 1419819727;
 
 (async () => {
   try {
-    const temp = await telegram.promoteChatMember(1419819727, { can_manage_chat: true });
+    const temp = await telegram.promoteChatMember(chatId, telegramUserId, { can_manage_chat: true });
 
     console.log({ temp });
   } catch (err) {
