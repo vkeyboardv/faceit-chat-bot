@@ -49,8 +49,6 @@ const start = async () => {
             } - Updated elo ${faceit_elo}, lvl ${skill_level}`,
           );
         } catch (err) {
-          await telegram.setChatAdministratorCustomTitle(chatId, account.telegramUserId, `error`);
-
           console.log(`[${new Date().toISOString()}]: ${chatId}|${account.faceitName} - Updated error`);
         }
       } catch (err) {
