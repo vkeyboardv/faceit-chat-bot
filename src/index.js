@@ -50,6 +50,8 @@ const start = async () => {
           );
         } catch (err) {
           console.log(`[${new Date().toISOString()}]: ${chatId}|${account.faceitName} - Updated error`);
+
+          console.log(err.message);
         }
       } catch (err) {
         console.log(err.message);

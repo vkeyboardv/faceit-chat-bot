@@ -2,17 +2,67 @@
   {
     "chatId": -1001824416141,
     "accounts": [
-      { "telegramUserId": 398864856, "faceitName": "Fram3" },
-      { "telegramUserId": 479727907, "faceitName": "-placebor" },
-      { "telegramUserId": 385336527, "faceitName": "sope_live" },
-      { "telegramUserId": 1419819727, "faceitName": "xHWP" }
+      {
+        "telegramUserId": 398864856,
+        "faceitName": "Fram3"
+      },
+      {
+        "telegramUserId": 479727907,
+        "faceitName": "-placebor"
+      },
+      {
+        "telegramUserId": 385336527,
+        "faceitName": "sope_live"
+      },
+      {
+        "telegramUserId": 1419819727,
+        "faceitName": "xHWP"
+      }
     ]
   },
   {
     "chatId": -1001887440131,
     "accounts": [
-      { "telegramUserId": 328778709, "faceitName": "mvsil" },
-      { "telegramUserId": 398864856, "faceitName": "Fram3" }
+      {
+        "telegramUserId": 328778709,
+        "faceitName": "mvsil"
+      },
+      {
+        "telegramUserId": 398864856,
+        "faceitName": "Fram3"
+      },
+      {
+        "telegramUserId": 339741466,
+        "faceitName": "Eazone"
+      },
+      {
+        "telegramUserId": 1419819727,
+        "faceitName": "xHWP"
+      },
+      {
+        "telegramUserId": 399114523,
+        "faceitName": "Jeriikon"
+      },
+      {
+        "telegramUserId": 385336527,
+        "faceitName": "sope_live"
+      },
+      {
+        "telegramUserId": 479727907,
+        "faceitName": "-placebor"
+      },
+      {
+        "telegramUserId": 473886336,
+        "faceitName": "smart7k"
+      },
+      {
+        "telegramUserId": 467889725,
+        "faceitName": "Shaman7897"
+      },
+      {
+        "telegramUserId": 343350789,
+        "faceitName": "serex007k"
+      }
     ]
   }
 ]
