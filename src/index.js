@@ -16,6 +16,8 @@ const { timezone, pattern } = nconf.get('cron');
 
 const telegram = new Telegram(botToken);
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const start = async () => {
   console.log(`[${new Date().toISOString()}]: Start`);
 
@@ -29,6 +31,8 @@ const start = async () => {
 
         try {
           const { data } = await axios.get(url);
+
+          await sleep(2000);
 
           const {
             payload: {
