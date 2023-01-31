@@ -34,8 +34,6 @@ const start = async () => {
         try {
           const { data } = await axios.get(url);
 
-          await sleep(2000);
-
           const {
             payload: {
               games: {
@@ -47,7 +45,7 @@ const start = async () => {
           const adminIndex = admins.findIndex((admin) => {
             return Number(admin.user.id) === Number(account.telegramUserId);
           });
-  
+
           if (adminIndex === -1) {
             await telegram.promoteChatMember(chatId, account.telegramUserId, { can_manage_chat: true });
           }
@@ -76,6 +74,8 @@ const start = async () => {
 
     try {
       await Promise.all(promises);
+
+      await sleep(2000);
     } catch (err) {
       console.log(err.message);
 
