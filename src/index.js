@@ -25,6 +25,8 @@ const start = async () => {
     const { chatId, accounts } = chat;
     console.log(`[${new Date().toISOString()}]: Calling for chat`, { chatId });
 
+    const admins = await telegram.getChatAdministrators(chatId);
+
     const promises = accounts.map(async (account) => {
       try {
         const url = `https://api.faceit.com/users/v1/nicknames/${account.faceitName}`;
@@ -41,6 +43,14 @@ const start = async () => {
               },
             },
           } = data;
+
+          const adminIndex = admins.findIndex((admin) => {
+            return Number(admin.user.id) === Number(account.telegramUserId);
+          });
+  
+          if (adminIndex === -1) {
+            await telegram.promoteChatMember(chatId, account.telegramUserId, { can_manage_chat: true });
+          }
 
           await telegram.setChatAdministratorCustomTitle(
             chatId,
